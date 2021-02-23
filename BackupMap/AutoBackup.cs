@@ -153,7 +153,7 @@ namespace BackupMap
             {
                 new Thread(() =>
                 {
-                    Console.WriteLine("[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " INFO ]5S后开始备份存档");
+                    Console.WriteLine("[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " BackupMap ]5S后开始备份存档");
                     SeedCMD(SaveHold);
                     Thread.Sleep(1000 * 5);
                     string output = Profile.HomeDire + "\\" + MapDirName + DateTime.Now.ToString("_yyyy_MM_dd_HH_mm_ss");
