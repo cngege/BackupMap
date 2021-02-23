@@ -80,7 +80,7 @@ namespace BackupMap
             }
             if (tickvalue > 1000 * 60)
             {
-                ini.Write("Tick", "TickTime", tickvalue.ToString());
+                //TODO 最后写入ini
                 AutoBackup.TimerTick.Interval = tickvalue;
                 Profile.TickTime = tickvalue;
             }
@@ -93,7 +93,7 @@ namespace BackupMap
             //检查保存路径
             if (Directory.Exists(SavePath_input.Text))
             {
-                ini.Write("SaveMap","SavePath", SavePath_input.Text);
+                //TODO 最后写入ini
                 Profile.HomeDire = SavePath_input.Text;
             }
             else
@@ -103,13 +103,17 @@ namespace BackupMap
             }
 
             //是否跳过
-            ini.Write("SaveMap", "Leapfrog", Isleapfrog_check.Checked?"1":"0");
+            //TODO 最后写入ini
             Profile.isleapfrog = Isleapfrog_check.Checked;
 
 
             //最后开启定时器
             AutoBackup.TimerTick.Enabled = true;
             AutoBackup.TimerTick.Start();
+
+            ini.Write("Tick", "TickTime", Profile.TickTime.ToString());
+            ini.Write("SaveMap", "SavePath", Profile.HomeDire);
+            ini.Write("SaveMap", "Leapfrog", Isleapfrog_check.Checked ? "1" : "0");
 
         }
 
@@ -126,14 +130,26 @@ namespace BackupMap
         }
 
         //点击选择获取"复制到"文件夹
+        [Obsolete]
         private void GetPath_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            //dialog.Description = "选择备份存档要保存的目录"; //提示文字
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                SavePath_input.Text = dialog.SelectedPath;
-            }
+            /*            FolderBrowserDialog dialog = new FolderBrowserDialog();
+                        dialog.Description = "选择备份存档要保存的目录"; //提示文字
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            SavePath_input.Text = dialog.SelectedPath;
+                        }*/
+
+            System.Threading.Thread s = new System.Threading.Thread(new System.Threading.ThreadStart(()=> {
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.Description = "选择备份存档要保存的目录"; //提示文字
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    SavePath_input.Text = dialog.SelectedPath;
+                }
+            }));
+            s.ApartmentState = System.Threading.ApartmentState.STA;
+            s.Start();
 
         }
     }

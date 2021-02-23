@@ -59,8 +59,7 @@ namespace BackupMap
 
                     CopyDirectory(file, currentdir, overwrite);
                 }
-
-                else // 否则直接copy文件
+                else if(File.Exists(file)) // 否则如果是文件直接copy文件
                 {
                     string srcfileName = file.Substring(file.LastIndexOf("\\") + 1);
 
@@ -70,8 +69,11 @@ namespace BackupMap
                     {
                         Directory.CreateDirectory(desfolderdir);
                     }
-
-                    File.Copy(file, srcfileName, overwrite);
+                    if (overwrite || !File.Exists(srcfileName))
+                    {
+                        File.Copy(file, srcfileName, true);
+                    }
+                    
                 }
             }//foreach
         }//function end
@@ -151,12 +153,11 @@ namespace BackupMap
             {
                 new Thread(() =>
                 {
-                    Console.WriteLine("[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "]5S后开始备份存档");
+                    Console.WriteLine("[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " INFO ]5S后开始备份存档");
                     SeedCMD(SaveHold);
                     Thread.Sleep(1000 * 5);
-                    string output = Profile.HomeDire + "\\" + MapDirName + "[" + DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") + "]";
+                    string output = Profile.HomeDire + "\\" + MapDirName + DateTime.Now.ToString("_yyyy_MM_dd_HH_mm_ss");
                     //string output = Profile.HomeDire + "\\" + MapDirName;
-                    
                     CopyDirectory(MapPath, output, !Profile.isleapfrog);                //复制文件夹
 
                     //判断复制完成的文件大小是不是不比原来的存档文件大小小??? 大于等于=成功
@@ -214,6 +215,10 @@ namespace BackupMap
 
                     // TODO 备份的相同文件夹名称的存档是否覆盖或跳过
                     Profile.isleapfrog = ini.Read("SaveMap", "Leapfrog","0") != "0";
+
+                    TimerTick.Enabled = true;
+                    TimerTick.Start();
+
                     return;
                 }
             }
@@ -246,9 +251,8 @@ namespace BackupMap
             CheckDeploy();                                  //检查配置文件是否存在,不存在则打开窗口进行配置
             
             //TimerTick.Interval = 1000 * 1 * 10; //1H执行一次 第一次执行就在这个时间后 单位ms
-            //TimerTick.Enabled = true;
             TimerTick.Elapsed += new System.Timers.ElapsedEventHandler(OnTick);
-            //TimerTick.Start();
+            
 
             //GetGameMap();
 
