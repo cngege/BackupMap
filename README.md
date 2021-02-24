@@ -1,6 +1,6 @@
 ﻿# Minecraft BDS CSR BackupMap
 
-标签（空格分隔）： Minecraft BDS CSR plugin
+```Minecraft``` ```BDS``` ```CSR``` ```plugin```
 
 ---
 
