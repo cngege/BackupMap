@@ -35,7 +35,7 @@
 
 
 
-## 注意❗：插件仅第一次打开才会弹出面板进行配置。如果需要重新配置,可以删除 ```BackUpMap 下的 BackupMap.ini``` 文件，重启服务端,即会再次弹出配置面板。
+## 注意❗：插件仅第一次打开才会弹出面板进行配置。如果需要重新配置,可以删除 ```BackUpMap/BackupMap.ini``` 文件，重启服务端,即会再次弹出配置面板。
 
 
   [1]: https://www.minecraft.net/en-us/download/server/bedrock/
