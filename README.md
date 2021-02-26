@@ -25,7 +25,7 @@
  8. 在MCPE文件夹中新建CSR文件夹,并将本插件和Tools.dll文件放入该文件夹
  9. 启动梦之故里启动器(双击MCModDllExe文件夹中的debug.bat批处理,或者根据教程在网页端启动)
  10. 在BDS命令窗口中提示 ``` [BackupMap] 自动备份组件已加载。 ``` 即可等待出现配置面板
- 11. 面板第一个输入控件填插件循环备份存档间隔时间 单位ms 仅填数字,不要小于一分钟
+ 11. 面板第一个输入控件处填插件循环备份存档间隔时间 仅填数字,总时间不要小于一分钟
  12. 面板第二个输入控件填备份的存档将要保存到的文件夹,右边按钮点击后可更方便选择
  13. 下面的复选框控制 备份到的文件夹有重名文件时是跳过还是覆盖
  14. 面板右下角按钮点击后将配置写入到本地配置文件中(``` BackUpMap/BackupMap.ini ```),没有出现提示表示成功
@@ -41,4 +41,4 @@
   [1]: https://www.minecraft.net/en-us/download/server/bedrock/
   [2]: https://github.com/zhkj-liuxiaohua/BDSNetRunner
   [3]: https://github.com/cngege/Tools
-  [4]: https://ae03.alicdn.com/kf/U0650afde71b945c6a3848a35a4674c6aq.jpg
+  [4]: https://ae03.alicdn.com/kf/Ue706e923bc79457db85f4caf63578338I.jpg
