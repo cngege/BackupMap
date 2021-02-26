@@ -66,12 +66,19 @@ namespace BackupMap
         private void OKbtn_Click(object sender, EventArgs e)
         {
 
-            
+
             //检查TickTime
-            int tickvalue = 0;
+            int tickvalue = 0,  //ms
+                tickvalue0 = 0,
+                tickvalue1 = 0,
+                tickvalue2 = 0;
             try
             {
-                tickvalue = int.Parse(TickTime_input.Text);
+                tickvalue0 = int.Parse(Hour_input.Text); //H
+                tickvalue1 = int.Parse(Minute_input.Text); //M
+                tickvalue2 = int.Parse(Second_input.Text); //S
+
+                tickvalue = ((tickvalue0 * 60 * 60) + (tickvalue1 * 60) + tickvalue2) * 1000;
             }
             catch (Exception)
             {
@@ -86,7 +93,7 @@ namespace BackupMap
             }
             else
             {
-                MessageBox.Show("请检查备份时间输入框值是否大于60秒[大于60000]");
+                MessageBox.Show("请检查备份时间输入框值是否大于一分钟");
                 return;
             }
 
