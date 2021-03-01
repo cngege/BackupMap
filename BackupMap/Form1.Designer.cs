@@ -38,19 +38,26 @@ namespace BackupMap
             this.OKbtn = new System.Windows.Forms.Button();
             this.OpenSource_label = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.ZipMap_Check = new System.Windows.Forms.CheckBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.NeedPlayer_Check = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.Second_input = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.Minute_input = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.Hour_input = new System.Windows.Forms.TextBox();
             this.Isleapfrog_check = new System.Windows.Forms.CheckBox();
             this.GetPath = new System.Windows.Forms.Button();
             this.Label = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SavePath_input = new System.Windows.Forms.TextBox();
-            this.Hour_input = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.Minute_input = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.Second_input = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.Threshold_label = new System.Windows.Forms.Label();
+            this.Threshold_Check = new System.Windows.Forms.CheckBox();
+            this.Threshold_input = new System.Windows.Forms.TextBox();
             this.TitlePanal.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Closebtn)).BeginInit();
@@ -167,6 +174,13 @@ namespace BackupMap
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.Threshold_input);
+            this.panel1.Controls.Add(this.Threshold_Check);
+            this.panel1.Controls.Add(this.Threshold_label);
+            this.panel1.Controls.Add(this.ZipMap_Check);
+            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.label8);
+            this.panel1.Controls.Add(this.NeedPlayer_Check);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.Second_input);
             this.panel1.Controls.Add(this.label6);
@@ -185,16 +199,140 @@ namespace BackupMap
             this.panel1.Size = new System.Drawing.Size(446, 320);
             this.panel1.TabIndex = 4;
             // 
+            // ZipMap_Check
+            // 
+            this.ZipMap_Check.AutoSize = true;
+            this.ZipMap_Check.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ZipMap_Check.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ZipMap_Check.Location = new System.Drawing.Point(8, 292);
+            this.ZipMap_Check.Name = "ZipMap_Check";
+            this.ZipMap_Check.Size = new System.Drawing.Size(53, 24);
+            this.ZipMap_Check.TabIndex = 14;
+            this.ZipMap_Check.Text = "压缩";
+            this.ZipMap_Check.UseVisualStyleBackColor = true;
+            this.ZipMap_Check.CheckedChanged += new System.EventHandler(this.ZipMap_Check_CheckedChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label9.ForeColor = System.Drawing.Color.White;
+            this.label9.Location = new System.Drawing.Point(93, 297);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(208, 17);
+            this.label9.TabIndex = 13;
+            this.label9.Text = "备份的存档是否打包成压缩包[未完成]";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.ForeColor = System.Drawing.Color.White;
+            this.label8.Location = new System.Drawing.Point(94, 267);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(287, 17);
+            this.label8.TabIndex = 12;
+            this.label8.Text = "如果上次备份到这次备份没有玩家进入游戏,则不备份";
+            // 
+            // NeedPlayer_Check
+            // 
+            this.NeedPlayer_Check.AutoSize = true;
+            this.NeedPlayer_Check.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.NeedPlayer_Check.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.NeedPlayer_Check.Location = new System.Drawing.Point(8, 262);
+            this.NeedPlayer_Check.Name = "NeedPlayer_Check";
+            this.NeedPlayer_Check.Size = new System.Drawing.Size(81, 24);
+            this.NeedPlayer_Check.TabIndex = 11;
+            this.NeedPlayer_Check.Text = "跳过备份";
+            this.NeedPlayer_Check.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label7.ForeColor = System.Drawing.Color.SlateBlue;
+            this.label7.Location = new System.Drawing.Point(283, 48);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(76, 17);
+            this.label7.TabIndex = 10;
+            this.label7.Text = "秒  备份一次";
+            // 
+            // Second_input
+            // 
+            this.Second_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Second_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Second_input.Location = new System.Drawing.Point(242, 47);
+            this.Second_input.Name = "Second_input";
+            this.Second_input.Size = new System.Drawing.Size(38, 20);
+            this.Second_input.TabIndex = 9;
+            this.Second_input.Text = "0";
+            this.Second_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label6.ForeColor = System.Drawing.Color.SlateBlue;
+            this.label6.Location = new System.Drawing.Point(201, 48);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(32, 17);
+            this.label6.TabIndex = 8;
+            this.label6.Text = "分钟";
+            // 
+            // Minute_input
+            // 
+            this.Minute_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Minute_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Minute_input.Location = new System.Drawing.Point(160, 47);
+            this.Minute_input.Name = "Minute_input";
+            this.Minute_input.Size = new System.Drawing.Size(38, 20);
+            this.Minute_input.TabIndex = 7;
+            this.Minute_input.Text = "0";
+            this.Minute_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label5.ForeColor = System.Drawing.Color.SlateBlue;
+            this.label5.Location = new System.Drawing.Point(122, 48);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(32, 17);
+            this.label5.TabIndex = 6;
+            this.label5.Text = "小时";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label4.ForeColor = System.Drawing.Color.SlateBlue;
+            this.label4.Location = new System.Drawing.Point(5, 48);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(44, 17);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "每经过";
+            // 
+            // Hour_input
+            // 
+            this.Hour_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Hour_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Hour_input.Location = new System.Drawing.Point(55, 47);
+            this.Hour_input.Name = "Hour_input";
+            this.Hour_input.Size = new System.Drawing.Size(65, 20);
+            this.Hour_input.TabIndex = 4;
+            this.Hour_input.Text = "1";
+            this.Hour_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // Isleapfrog_check
             // 
             this.Isleapfrog_check.AutoSize = true;
             this.Isleapfrog_check.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Isleapfrog_check.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Isleapfrog_check.Location = new System.Drawing.Point(8, 162);
+            this.Isleapfrog_check.Location = new System.Drawing.Point(8, 232);
             this.Isleapfrog_check.Name = "Isleapfrog_check";
             this.Isleapfrog_check.Size = new System.Drawing.Size(53, 24);
             this.Isleapfrog_check.TabIndex = 3;
-            this.Isleapfrog_check.Text = "跳过";
+            this.Isleapfrog_check.Text = "覆盖";
             this.Isleapfrog_check.UseVisualStyleBackColor = true;
             this.Isleapfrog_check.CheckedChanged += new System.EventHandler(this.Isleapfrog_check_CheckedChanged);
             // 
@@ -214,11 +352,11 @@ namespace BackupMap
             this.Label.AutoSize = true;
             this.Label.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Label.ForeColor = System.Drawing.Color.White;
-            this.Label.Location = new System.Drawing.Point(5, 141);
+            this.Label.Location = new System.Drawing.Point(93, 237);
             this.Label.Name = "Label";
-            this.Label.Size = new System.Drawing.Size(260, 17);
+            this.Label.Size = new System.Drawing.Size(308, 17);
             this.Label.TabIndex = 1;
-            this.Label.Text = "当要保存存档的保存目录已存在的是否是否覆盖";
+            this.Label.Text = "当要保存存档的保存目录已存在的是否是否覆盖还是跳过";
             // 
             // label3
             // 
@@ -251,82 +389,38 @@ namespace BackupMap
             this.SavePath_input.Size = new System.Drawing.Size(396, 22);
             this.SavePath_input.TabIndex = 0;
             // 
-            // Hour_input
+            // Threshold_label
             // 
-            this.Hour_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.Hour_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Hour_input.Location = new System.Drawing.Point(68, 47);
-            this.Hour_input.Name = "Hour_input";
-            this.Hour_input.Size = new System.Drawing.Size(65, 20);
-            this.Hour_input.TabIndex = 4;
-            this.Hour_input.Text = "1";
-            this.Hour_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.Threshold_label.AutoSize = true;
+            this.Threshold_label.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Threshold_label.ForeColor = System.Drawing.Color.White;
+            this.Threshold_label.Location = new System.Drawing.Point(26, 137);
+            this.Threshold_label.Name = "Threshold_label";
+            this.Threshold_label.Size = new System.Drawing.Size(260, 17);
+            this.Threshold_label.TabIndex = 15;
+            this.Threshold_label.Text = "磁盘的剩余空间必须要大于备份存档大小的倍数";
             // 
-            // label4
+            // Threshold_Check
             // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.ForeColor = System.Drawing.Color.SlateBlue;
-            this.label4.Location = new System.Drawing.Point(18, 48);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(44, 17);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "每经过";
+            this.Threshold_Check.AutoSize = true;
+            this.Threshold_Check.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Threshold_Check.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Threshold_Check.Location = new System.Drawing.Point(8, 139);
+            this.Threshold_Check.Name = "Threshold_Check";
+            this.Threshold_Check.Size = new System.Drawing.Size(12, 11);
+            this.Threshold_Check.TabIndex = 16;
+            this.Threshold_Check.UseVisualStyleBackColor = true;
             // 
-            // label5
+            // Threshold_input
             // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label5.ForeColor = System.Drawing.Color.SlateBlue;
-            this.label5.Location = new System.Drawing.Point(135, 48);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(32, 17);
-            this.label5.TabIndex = 6;
-            this.label5.Text = "小时";
-            // 
-            // Minute_input
-            // 
-            this.Minute_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.Minute_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Minute_input.Location = new System.Drawing.Point(173, 47);
-            this.Minute_input.Name = "Minute_input";
-            this.Minute_input.Size = new System.Drawing.Size(38, 20);
-            this.Minute_input.TabIndex = 7;
-            this.Minute_input.Text = "0";
-            this.Minute_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.ForeColor = System.Drawing.Color.SlateBlue;
-            this.label6.Location = new System.Drawing.Point(214, 48);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(32, 17);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "分钟";
-            // 
-            // Second_input
-            // 
-            this.Second_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.Second_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Second_input.Location = new System.Drawing.Point(255, 47);
-            this.Second_input.Name = "Second_input";
-            this.Second_input.Size = new System.Drawing.Size(38, 20);
-            this.Second_input.TabIndex = 9;
-            this.Second_input.Text = "0";
-            this.Second_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.ForeColor = System.Drawing.Color.SlateBlue;
-            this.label7.Location = new System.Drawing.Point(296, 48);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(76, 17);
-            this.label7.TabIndex = 10;
-            this.label7.Text = "秒  备份一次";
+            this.Threshold_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Threshold_input.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Threshold_input.Location = new System.Drawing.Point(292, 134);
+            this.Threshold_input.Name = "Threshold_input";
+            this.Threshold_input.Size = new System.Drawing.Size(110, 20);
+            this.Threshold_input.TabIndex = 17;
+            this.Threshold_input.Text = "1";
+            this.Threshold_input.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // Form1
             // 
@@ -382,5 +476,12 @@ namespace BackupMap
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox Hour_input;
         private System.Windows.Forms.CheckBox Isleapfrog_check;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox NeedPlayer_Check;
+        private System.Windows.Forms.CheckBox ZipMap_Check;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label Threshold_label;
+        private System.Windows.Forms.CheckBox Threshold_Check;
+        private System.Windows.Forms.TextBox Threshold_input;
     }
 }

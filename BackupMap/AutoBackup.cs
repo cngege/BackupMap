@@ -24,7 +24,12 @@ namespace BackupMap
 
         public static MCCSAPI mapi;
         public static System.Timers.Timer TimerTick;
-        private static InIFile ini; 
+        //记值变量
+        public static bool havePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
+
+        private static InIFile ini;
+
+
 
 
 
@@ -138,6 +143,31 @@ namespace BackupMap
         }
 
         /// <summary>
+        /// 获取分区的剩余空间大小
+        /// </summary>
+        /// <param name="str_HardDisk">当前路径或当前路径的盘符</param>
+        /// <returns></returns>
+        public static long GetHardDiskSpace(string str_HardDisk)
+        {
+            if (str_HardDisk.IndexOf(":") != -1)
+            {
+                str_HardDisk = str_HardDisk.Substring(0, str_HardDisk.IndexOf(":"));
+            }
+            str_HardDisk = str_HardDisk + ":\\";
+            System.IO.DriveInfo[] drives = System.IO.DriveInfo.GetDrives();
+            foreach (System.IO.DriveInfo drive in drives)
+            {
+                if (drive.Name == str_HardDisk)
+                {
+                    return drive.TotalFreeSpace;
+                }
+            }
+            return 0;
+        }
+
+
+
+        /// <summary>
         /// 向服务器发送后台指令
         /// </summary>
         /// <param name="cmd">指令的内容</param>
@@ -147,18 +177,46 @@ namespace BackupMap
             return mapi.runcmd(cmd);
         }
 
+        public static void AddAfterActListener(string onkey, MCCSAPI.EventCab call)
+        {
+            mapi.addAfterActListener(onkey,call);
+        }
+
         public static bool StartBackup()
         {
+            if (Profile.NeedPlayerBakcup)
+            {
+                if (!havePlayer)
+                {
+                    return false;
+                }
+
+                //如果备份的时候没有玩家在线则将表示改为false
+                string player = mapi.getOnLinePlayers();
+                if (string.IsNullOrEmpty(player) || player == "[]")
+                {
+                    havePlayer = false;
+                    Console.WriteLine("DEBUG:当前服务器没有玩家");
+                }
+            }
+
+            //检查磁盘剩余空间是否满足要求
+            if (!Profile.EnabledThreshold || GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < GetDirectoryLength(MapPath) * Profile.Threshold)
+            {
+                Console.WriteLine("磁盘空间小于阙值");
+                return false;
+            }
+
             if (SeedCMD(SaveHold))
             {
                 new Thread(() =>
                 {
-                    Console.WriteLine("[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " BackupMap ]5S后开始备份存档");
+                    Console.WriteLine("[{0} BackupMap ]5S后开始备份存档", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     SeedCMD(SaveHold);
                     Thread.Sleep(1000 * 5);
-                    string output = Profile.HomeDire + "\\" + MapDirName + DateTime.Now.ToString("_yyyy_MM_dd_HH_mm_ss");
-                    //string output = Profile.HomeDire + "\\" + MapDirName;
-                    CopyDirectory(MapPath, output, !Profile.isleapfrog);                //复制文件夹
+                    string output = string.Format("{0}\\{1}_{2}", Profile.HomeDire, MapDirName , DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                    
+                    CopyDirectory(MapPath, output, !Profile.Isleapfrog);                //复制文件夹
 
                     //判断复制完成的文件大小是不是不比原来的存档文件大小小??? 大于等于=成功
                     if (GetDirectoryLength(MapPath) <= GetDirectoryLength(output))
@@ -213,8 +271,18 @@ namespace BackupMap
                     // TODO 保存的总文件夹
                     Profile.HomeDire = ini.Read("SaveMap","SavePath", MapPath);
 
+                    // TODO 阙值
+                    Profile.EnabledThreshold = ini.Read("Threshold","Enabled", "0") != "0";
+                    if (Profile.EnabledThreshold)
+                    {
+                        Profile.Threshold = int.Parse(ini.Read("Threshold", "Threshold", "0"));
+                    }
+
                     // TODO 备份的相同文件夹名称的存档是否覆盖或跳过
-                    Profile.isleapfrog = ini.Read("SaveMap", "Leapfrog","0") != "0";
+                    Profile.Isleapfrog = ini.Read("SaveMap", "Leapfrog","0") != "0";
+
+                    // TODO 是否只在有玩家玩过服务器的情况下备份存档
+                    Profile.NeedPlayerBakcup = ini.Read("SaveMap", "NeedPlayer", "0") != "0";
 
                     TimerTick.Enabled = true;
                     TimerTick.Start();
@@ -249,13 +317,14 @@ namespace BackupMap
             Profile.HomeDire = BakcupPath;
             GetGameMap();
             CheckDeploy();                                  //检查配置文件是否存在,不存在则打开窗口进行配置
-            
+
             //TimerTick.Interval = 1000 * 1 * 10; //1H执行一次 第一次执行就在这个时间后 单位ms
             TimerTick.Elapsed += new System.Timers.ElapsedEventHandler(OnTick);
-            
+
 
             //GetGameMap();
-
+            //监听事件：玩家加入世界
+            AddAfterActListener("onLoadName", (e) => { havePlayer = true; return true; });
         }
     }
 
@@ -266,7 +335,13 @@ namespace BackupMap
         //保存存档的父文件夹 路径
         public static string HomeDire = AutoBackup.BakcupPath;
         //保存目录有相同的Map是否跳过[true:1]/覆盖[false:0]
-        public static bool isleapfrog;
+        public static bool Isleapfrog;
+        //距离上次备份需要玩家进入过游戏才备份
+        public static bool NeedPlayerBakcup;
+        //备份时是否检测剩余空间
+        public static bool EnabledThreshold;
+        //[需要前项开启] 剩余空间必须要大于备份存档的倍数;
+        public static int Threshold = 1;
 
     }
 
@@ -285,7 +360,13 @@ namespace CSR
         /// <param name="api">MC相关调用方法</param>
         public static void onStart(MCCSAPI api)
         {
-            Console.WriteLine("[BackupMap] 自动备份组件已加载。");
+            ConsoleColor color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            Console.WriteLine("[BackupMap] 自动存档备份组件已加载。");
+
+            Console.ForegroundColor = color;
+
             // TODO 此接口为必要实现
             BackupMap.AutoBackup.init(api);
         }

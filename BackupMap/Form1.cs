@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSR;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -62,6 +63,52 @@ namespace BackupMap
         }
 
 
+        //点击左下角文字 打开GitHub开源界面
+        private void OpenSource_label_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/cngege/BackupMap");
+        }
+
+        //点击是否跳过选择框
+        private void Isleapfrog_check_CheckedChanged(object sender, EventArgs e)
+        {
+            //Isleapfrog_check.Text = Isleapfrog_check.Checked ? "覆盖" : "跳过";
+
+        }
+
+        //点击选择获取"复制到"文件夹
+        [Obsolete]
+        private void GetPath_Click(object sender, EventArgs e)
+        {
+            /*            FolderBrowserDialog dialog = new FolderBrowserDialog();
+                        dialog.Description = "选择备份存档要保存的目录"; //提示文字
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            SavePath_input.Text = dialog.SelectedPath;
+                        }*/
+
+            System.Threading.Thread s = new System.Threading.Thread(new System.Threading.ThreadStart(()=> {
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.Description = "选择备份存档要保存的目录"; //提示文字
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    SavePath_input.Text = dialog.SelectedPath;
+                }
+            }));
+            s.ApartmentState = System.Threading.ApartmentState.STA;
+            s.Start();
+
+        }
+
+        //备份存档是否打包压缩 复选框
+        private void ZipMap_Check_CheckedChanged(object sender, EventArgs e)
+        {
+            //ZipMap_Check.Text = ZipMap_Check.Checked ? "压缩" : "不压缩";
+
+        }
+
+
+
         //面板右下角"完成"点击之后事件
         private void OKbtn_Click(object sender, EventArgs e)
         {
@@ -109,10 +156,30 @@ namespace BackupMap
                 return;
             }
 
+            //阙值
+            Profile.EnabledThreshold = Threshold_Check.Checked;
+            if (Threshold_Check.Checked)
+            {
+                try
+                {
+                    Profile.Threshold = int.Parse(Threshold_input.Text);
+                    
+                }
+                catch (Exception)
+                {
+
+                    MessageBox.Show("请检查阙值是否是整数");
+                    return;
+                }
+            }
+
             //是否跳过
             //TODO 最后写入ini
-            Profile.isleapfrog = Isleapfrog_check.Checked;
+            Profile.Isleapfrog = Isleapfrog_check.Checked;
 
+            //是否需要玩家进入过服务器才备份
+            Profile.NeedPlayerBakcup = NeedPlayer_Check.Checked;
+            //TODO 最后写入ini
 
             //最后开启定时器
             AutoBackup.TimerTick.Enabled = true;
@@ -120,44 +187,14 @@ namespace BackupMap
 
             ini.Write("Tick", "TickTime", Profile.TickTime.ToString());
             ini.Write("SaveMap", "SavePath", Profile.HomeDire);
+            ini.Write("Threshold", "Enabled", Profile.EnabledThreshold ? "1" : "0");
+            ini.Write("Threshold", "Threshold", Profile.Threshold.ToString());
+
             ini.Write("SaveMap", "Leapfrog", Isleapfrog_check.Checked ? "1" : "0");
+            ini.Write("SaveMap", "NeedPlayer", Profile.NeedPlayerBakcup ? "1" : "0");
 
         }
 
-        //点击左下角文字 打开GitHub开源界面
-        private void OpenSource_label_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/cngege/BackupMap");
-        }
 
-        //点击是否跳过选择框
-        private void Isleapfrog_check_CheckedChanged(object sender, EventArgs e)
-        {
-            Isleapfrog_check.Text = Isleapfrog_check.Checked ? "覆盖" : "跳过";
-        }
-
-        //点击选择获取"复制到"文件夹
-        [Obsolete]
-        private void GetPath_Click(object sender, EventArgs e)
-        {
-            /*            FolderBrowserDialog dialog = new FolderBrowserDialog();
-                        dialog.Description = "选择备份存档要保存的目录"; //提示文字
-                        if (dialog.ShowDialog() == DialogResult.OK)
-                        {
-                            SavePath_input.Text = dialog.SelectedPath;
-                        }*/
-
-            System.Threading.Thread s = new System.Threading.Thread(new System.Threading.ThreadStart(()=> {
-                FolderBrowserDialog dialog = new FolderBrowserDialog();
-                dialog.Description = "选择备份存档要保存的目录"; //提示文字
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    SavePath_input.Text = dialog.SelectedPath;
-                }
-            }));
-            s.ApartmentState = System.Threading.ApartmentState.STA;
-            s.Start();
-
-        }
     }
 }
