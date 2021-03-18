@@ -15,6 +15,7 @@ namespace BackupMap
     public class AutoBackup
     {
         public static string SaveHold = "save hold";
+        public static string SaveQuery = "save query";
         public static string SaveResume = "save resume";
 
         public static string MapPath;                           //如:world\CNGEGE        最后不带\
@@ -26,6 +27,7 @@ namespace BackupMap
         public static System.Timers.Timer TimerTick;
         //记值变量
         public static bool havePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
+        public static bool PrepareBackup = false;
 
         private static InIFile ini;
 
@@ -177,10 +179,6 @@ namespace BackupMap
             return mapi.runcmd(cmd);
         }
 
-        public static void AddAfterActListener(string onkey, MCCSAPI.EventCab call)
-        {
-            mapi.addAfterActListener(onkey,call);
-        }
 
         public static bool StartBackup()
         {
@@ -214,20 +212,8 @@ namespace BackupMap
                     Console.WriteLine("[{0} BackupMap ]5S后开始备份存档", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     SeedCMD(SaveHold);
                     Thread.Sleep(1000 * 5);
-                    string output = string.Format("{0}\\{1}_{2}", Profile.HomeDire, MapDirName , DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
-                    
-                    CopyDirectory(MapPath, output, !Profile.Isleapfrog);                //复制文件夹
-
-                    //判断复制完成的文件大小是不是不比原来的存档文件大小小??? 大于等于=成功
-                    if (GetDirectoryLength(MapPath) <= GetDirectoryLength(output))
-                    {
-                        Console.WriteLine("备份完成");
-                    }
-                    else
-                    {
-                        Console.WriteLine("备份可能出现问题,没有完全拷贝完成");
-                    }
-                    SeedCMD(SaveResume);
+                    PrepareBackup = true;
+                    SeedCMD(SaveQuery);
 
                 }).Start();
                 return true;
@@ -308,6 +294,46 @@ namespace BackupMap
               
         }
 
+
+        /// <summary>
+        /// 分解可备份文件列表 并备份文件
+        /// </summary>
+        /// <param name="list">MCPE复制文件列表字符串</param>
+        /// <returns>复制不完全的文件数量,如果全部成功则为0</returns>
+        public static int BackupDB(string list)
+        {
+            try
+            {
+                string[] bplist = list.Split(new char[] { ',' });
+                int reval = 0;                      //复制不完全的文件数
+
+                string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                foreach (var item in bplist)
+                {
+                    string[] _list = item.Split(new char[] { ':' });
+                    string path = _list[0].Trim().Replace(@"/",@"\");
+                    long size = long.Parse(_list[1].Trim());
+                    if (Directory.Exists(Path.GetDirectoryName(savepath + path)) == false)
+                    {
+                        new DirectoryInfo(Path.GetDirectoryName(savepath + path)).Create();//如何这个文件的文件夹不存在 则创建一个文件夹 
+                    }
+                    File.Copy("worlds\\" + path, savepath + path);
+                    if (new FileInfo("worlds\\" + path).Length < size)
+                    {
+                        reval++;
+                    }
+                }
+
+                return reval;
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine(err.ToString());
+            }
+            return 0;
+        }
+
+
         public static void init(MCCSAPI api)
         {
             mapi = api;
@@ -318,14 +344,65 @@ namespace BackupMap
             GetGameMap();
             CheckDeploy();                                  //检查配置文件是否存在,不存在则打开窗口进行配置
 
-            //TimerTick.Interval = 1000 * 1 * 10; //1H执行一次 第一次执行就在这个时间后 单位ms
+            //TimerTick.Interval = 1000 * 1 * 10;           //1H执行一次 第一次执行就在这个时间后 单位ms
             TimerTick.Elapsed += new System.Timers.ElapsedEventHandler(OnTick);
 
 
             //GetGameMap();
             //监听事件：玩家加入世界
-            AddAfterActListener("onLoadName", (e) => { havePlayer = true; return true; });
+            api.addAfterActListener("onLoadName", e =>
+            {
+                havePlayer = true;
+                return true;
+            });
+
+            //监听事件：后台指令输出信息
+            api.addBeforeActListener("onServerCmdOutput", e =>
+            {
+                var ex = (ServerCmdOutputEvent)BaseEvent.getFrom(e);
+                string output = ex.output;
+
+                //
+                if (PrepareBackup)
+                {
+                    if (output.IndexOf("Data saved. Files are now ready to be copied") != -1 || output.IndexOf("数据已保存。文件现已可供复制") != -1)
+                    {
+                        Console.WriteLine("已获取备份文件列表，准备备份");
+                        PrepareBackup = false;
+                        //告诉系统 存档存储已恢复
+                        new Thread(() =>
+                        {
+                            //备份
+                            int count = BackupDB(output.Split(new char[] { '\n' })[1]);
+                            if (count != 0)
+                            {
+                                Console.WriteLine("备份结束有{0}个文件备份失败", count);
+                            }
+                            else
+                            {
+                                Console.WriteLine("全部备份成功");
+                            }
+
+                            Thread.Sleep(1000 * 2);
+                            SeedCMD(SaveResume);
+                        }).Start();
+
+                        return false;                                       //禁止在控制面板上显示这个回显
+                    }
+                    else
+                    {
+
+                        // TODO:当出现还没有准备完成的时候执行
+
+                    }
+                }
+
+                return true;
+            });
+
         }
+
+
     }
 
     public class Profile
@@ -362,13 +439,19 @@ namespace CSR
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
-
             Console.WriteLine("[BackupMap] 自动存档备份组件已加载。");
-
             Console.ForegroundColor = color;
 
             // TODO 此接口为必要实现
-            BackupMap.AutoBackup.init(api);
+            try
+            {
+                BackupMap.AutoBackup.init(api);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            
         }
     }
 }
