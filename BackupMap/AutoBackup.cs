@@ -14,6 +14,7 @@ namespace BackupMap
 
     public class AutoBackup
     {
+        //CMD
         public static string SaveHold = "save hold";
         public static string SaveQuery = "save query";
         public static string SaveResume = "save resume";
@@ -23,11 +24,12 @@ namespace BackupMap
         public static string BakcupPath = @"..\BackUpMap";      //备份存档默认的保存路径和配置文件的存放路径;
         public static string RunPath;
 
-        public static MCCSAPI mapi;
+        public static MCCSAPI Mapi;
         public static System.Timers.Timer TimerTick;
+
         //记值变量
-        public static bool havePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
-        public static bool PrepareBackup = false;
+        public static bool HavePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
+        public static bool PrepareBackup = false;               //已准备备份,等待调用出可备份文件列表
 
         private static InIFile ini;
 
@@ -176,7 +178,7 @@ namespace BackupMap
         /// <returns>返回是否发送成功</returns>
         public static bool SeedCMD(string cmd)
         {
-            return mapi.runcmd(cmd);
+            return Mapi.runcmd(cmd);
         }
 
 
@@ -184,16 +186,16 @@ namespace BackupMap
         {
             if (Profile.NeedPlayerBakcup)
             {
-                if (!havePlayer)
+                if (!HavePlayer)            //如果没有玩家来过
                 {
                     return false;
                 }
 
                 //如果备份的时候没有玩家在线则将表示改为false
-                string player = mapi.getOnLinePlayers();
-                if (string.IsNullOrEmpty(player) || player == "[]")
+                string player = Mapi.getOnLinePlayers();
+                if (string.IsNullOrEmpty(player) || player.Trim() == "[]")
                 {
-                    havePlayer = false;
+                    HavePlayer = false;
                     Console.WriteLine("DEBUG:当前服务器没有玩家");
                 }
             }
@@ -201,7 +203,7 @@ namespace BackupMap
             //检查磁盘剩余空间是否满足要求
             if (!Profile.EnabledThreshold || GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < GetDirectoryLength(MapPath) * Profile.Threshold)
             {
-                Console.WriteLine("磁盘空间小于阙值");
+                Console.WriteLine("磁盘空间小于阙值，备份终止");
                 return false;
             }
 
@@ -299,15 +301,16 @@ namespace BackupMap
         /// 分解可备份文件列表 并备份文件
         /// </summary>
         /// <param name="list">MCPE复制文件列表字符串</param>
-        /// <returns>复制不完全的文件数量,如果全部成功则为0</returns>
+        /// <returns>复制不完全的文件数量,如果全部成功则为0,出错为-1</returns>
         public static int BackupDB(string list)
         {
             try
             {
                 string[] bplist = list.Split(new char[] { ',' });
-                int reval = 0;                      //复制不完全的文件数
-
                 string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                int reval = 0;                                      //复制不完全的文件数
+
+                
                 foreach (var item in bplist)
                 {
                     string[] _list = item.Split(new char[] { ':' });
@@ -323,20 +326,20 @@ namespace BackupMap
                         reval++;
                     }
                 }
-
                 return reval;
+
             }
             catch (Exception err)
             {
                 Console.WriteLine(err.ToString());
+                return -1;
             }
-            return 0;
         }
 
 
         public static void init(MCCSAPI api)
         {
-            mapi = api;
+            Mapi = api;
             TimerTick = new System.Timers.Timer();
             RunPath = FileSys.GetPath();
             BakcupPath = RunPath + @"..\BackUpMap";
@@ -352,7 +355,7 @@ namespace BackupMap
             //监听事件：玩家加入世界
             api.addAfterActListener("onLoadName", e =>
             {
-                havePlayer = true;
+                HavePlayer = true;
                 return true;
             });
 
