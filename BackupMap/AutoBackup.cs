@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.IO.Compression;
 using Tools.Fileoperate;
 
 namespace BackupMap
@@ -31,7 +31,10 @@ namespace BackupMap
         public static bool HavePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
         public static bool PrepareBackup = false;               //已准备备份,等待调用出可备份文件列表
 
+        public static string Temp = @"..\tmp";                  //如果要压缩备份、存档的临时存储目录
+
         private static InIFile ini;
+
 
 
 
@@ -184,24 +187,8 @@ namespace BackupMap
 
         public static bool StartBackup()
         {
-            if (Profile.NeedPlayerBakcup)
-            {
-                if (!HavePlayer)            //如果没有玩家来过
-                {
-                    return false;
-                }
-
-                //如果备份的时候没有玩家在线则将表示改为false
-                string player = Mapi.getOnLinePlayers();
-                if (string.IsNullOrEmpty(player) || player.Trim() == "[]")
-                {
-                    HavePlayer = false;
-                    Console.WriteLine("DEBUG:当前服务器没有玩家");
-                }
-            }
-
             //检查磁盘剩余空间是否满足要求
-            if (!Profile.EnabledThreshold || GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < GetDirectoryLength(MapPath) * Profile.Threshold)
+            if (Profile.EnabledThreshold && (GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < GetDirectoryLength(MapPath) * Profile.Threshold))
             {
                 Console.WriteLine("磁盘空间小于阙值，备份终止");
                 return false;
@@ -228,10 +215,28 @@ namespace BackupMap
 
         public static void OnTick(object source, System.Timers.ElapsedEventArgs e)
         {
+            //时钟TICK到时间后被执行
             //Console.WriteLine("["+DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")+"]Tick被执行");
+            if (Profile.NeedPlayerBakcup)
+            {
+                if (!HavePlayer)            //如果没有玩家来过
+                {
+                    return;
+                }
+
+                //如果备份的时候没有玩家在线则将表示改为false
+                string player = Mapi.getOnLinePlayers();
+                if (string.IsNullOrEmpty(player) || player.Trim() == "[]")
+                {
+                    HavePlayer = false;
+                    //Console.WriteLine("DEBUG:当前服务器没有玩家");
+                }
+            }
+
             StartBackup();
         }
 
+        //检测配置配置文件
         public static void CheckDeploy()
         {
             if (Directory.Exists(BakcupPath))
@@ -272,6 +277,9 @@ namespace BackupMap
                     // TODO 是否只在有玩家玩过服务器的情况下备份存档
                     Profile.NeedPlayerBakcup = ini.Read("SaveMap", "NeedPlayer", "0") != "0";
 
+                    //备份时是否压缩存档到ZIP文件
+                    Profile.Zip = ini.Read("SaveMap", "Zip", "0") != "0";
+
                     TimerTick.Enabled = true;
                     TimerTick.Start();
 
@@ -282,14 +290,8 @@ namespace BackupMap
             {
                 Directory.CreateDirectory(BakcupPath);
             }
-            // TODO 显示窗口
 
-            //Task 异步加载
-            //new Task(()=> {
-            //    System.Windows.Forms.Form Form = new Form1();
-            //    Form.ShowDialog();
-            //}).Start();
-
+            //显示窗口
             new Thread(()=> {
                 System.Windows.Forms.Application.Run(new Form1());
             }).Start();
@@ -302,12 +304,12 @@ namespace BackupMap
         /// </summary>
         /// <param name="list">MCPE复制文件列表字符串</param>
         /// <returns>复制不完全的文件数量,如果全部成功则为0,出错为-1</returns>
-        public static int BackupDB(string list)
+        public static int BackupDB(string list,string savepath)
         {
             try
             {
                 string[] bplist = list.Split(new char[] { ',' });
-                string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                //string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                 int reval = 0;                                      //复制不完全的文件数
 
                 
@@ -375,17 +377,29 @@ namespace BackupMap
                         //告诉系统 存档存储已恢复
                         new Thread(() =>
                         {
+                            string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                             //备份
-                            int count = BackupDB(output.Split(new char[] { '\n' })[1]);
+                            int count = BackupDB(output.Split(new char[] { '\n' })[1], Profile.Zip? Temp : savepath);
                             if (count != 0)
                             {
                                 Console.WriteLine("备份结束有{0}个文件备份失败", count);
                             }
                             else
                             {
-                                Console.WriteLine("全部备份成功");
+                                Console.WriteLine("存档全部复制成功");
                             }
-
+                            if (Profile.Zip)
+                            {
+                                try
+                                {
+                                    ZipFile.CreateFromDirectory(Temp + @"\" + MapDirName, savepath + MapDirName + ".zip");
+                                }
+                                catch (Exception)
+                                {
+                                    Console.WriteLine("Backup Error", "执行压缩失败,将备份的文件夹复制到备份目录");
+                                }
+                                //System.IO.Directory.Delete()
+                            }
                             Thread.Sleep(1000 * 2);
                             SeedCMD(SaveResume);
                         }).Start();
@@ -394,7 +408,6 @@ namespace BackupMap
                     }
                     else
                     {
-
                         // TODO:当出现还没有准备完成的时候执行
 
                     }
@@ -422,6 +435,8 @@ namespace BackupMap
         public static bool EnabledThreshold;
         //[需要前项开启] 剩余空间必须要大于备份存档的倍数;
         public static int Threshold = 1;
+        //是否备份后压缩存档到ZIP文件
+        public static bool Zip = false;
 
     }
 

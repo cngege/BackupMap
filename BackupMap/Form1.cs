@@ -77,16 +77,8 @@ namespace BackupMap
         }
 
         //点击选择获取"复制到"文件夹
-        [Obsolete]
         private void GetPath_Click(object sender, EventArgs e)
         {
-            /*            FolderBrowserDialog dialog = new FolderBrowserDialog();
-                        dialog.Description = "选择备份存档要保存的目录"; //提示文字
-                        if (dialog.ShowDialog() == DialogResult.OK)
-                        {
-                            SavePath_input.Text = dialog.SelectedPath;
-                        }*/
-
             System.Threading.Thread s = new System.Threading.Thread(new System.Threading.ThreadStart(()=> {
                 FolderBrowserDialog dialog = new FolderBrowserDialog();
                 dialog.Description = "选择备份存档要保存的目录"; //提示文字
@@ -174,13 +166,15 @@ namespace BackupMap
             }
 
             //是否跳过
-            //TODO 最后写入ini
             Profile.Isleapfrog = Isleapfrog_check.Checked;
 
             //是否需要玩家进入过服务器才备份
             Profile.NeedPlayerBakcup = NeedPlayer_Check.Checked;
-            //TODO 最后写入ini
 
+            //是否压缩文件
+            Profile.Zip = ZipMap_Check.Checked;
+
+            //最后写入ini
             //最后开启定时器
             AutoBackup.TimerTick.Enabled = true;
             AutoBackup.TimerTick.Start();
@@ -192,6 +186,7 @@ namespace BackupMap
 
             ini.Write("SaveMap", "Leapfrog", Isleapfrog_check.Checked ? "1" : "0");
             ini.Write("SaveMap", "NeedPlayer", Profile.NeedPlayerBakcup ? "1" : "0");
+            ini.Write("SaveMap", "Zip", Profile.Zip ? "1" : "0");
 
         }
 
