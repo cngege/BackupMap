@@ -418,6 +418,17 @@ namespace BackupMap
                 return true;
             });
 
+            api.addBeforeActListener("onServerCmd", e => 
+            {
+                var ex = (ServerCmdEvent)BaseEvent.getFrom(e);
+                if (ex.cmd == "backupmap")
+                {
+                    StartBackup();  //手动备份
+                    return false;
+                }
+                return true;
+            });
+
         }
 
         /// <summary>
