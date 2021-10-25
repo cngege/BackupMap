@@ -252,9 +252,9 @@ namespace BackupMap
             this.label9.ForeColor = System.Drawing.Color.Black;
             this.label9.Location = new System.Drawing.Point(93, 297);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(328, 17);
+            this.label9.Size = new System.Drawing.Size(164, 17);
             this.label9.TabIndex = 13;
-            this.label9.Text = "备份的存档是否打包成压缩包[压缩文件无法进行完整性检查]";
+            this.label9.Text = "备份的存档是否打包成压缩包";
             // 
             // label8
             // 
