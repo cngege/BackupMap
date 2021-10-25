@@ -382,7 +382,9 @@ namespace BackupMap
                             int count = BackupDB(output.Split(new char[] { '\n' })[1], Profile.Zip? Temp+@"\" : savepath);
                             if (count != 0)
                             {
+                                if (count == -1) { Console.WriteLine("因备份失败而终止");return; }
                                 Console.WriteLine("备份结束有{0}个文件备份失败", count);
+                                
                             }
                             else
                             {
@@ -392,11 +394,14 @@ namespace BackupMap
                             {
                                 try
                                 {
+                                    Directory.CreateDirectory(savepath);
                                     ZipFile.CreateFromDirectory(Temp + @"\" + MapDirName, savepath + MapDirName + ".zip");
                                 }
-                                catch (Exception)
+                                catch (Exception error)
                                 {
-                                    Console.WriteLine("[BackupMap Error] ", "执行压缩失败,将备份的文件夹复制到备份目录");
+                                    Console.WriteLine("[BackupMap Error] 执行压缩失败,将备份的文件夹复制到备份目录，错误：{0}", error);
+                                    //File.Copy("Temp\\" + MapDirName, savepath + path);
+                                    
                                 }
                                 //System.IO.Directory.Delete()
                             }
