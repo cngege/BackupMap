@@ -134,10 +134,18 @@ namespace BackupMap
 
                 //如果备份的时候没有玩家在线则将表示改为false
                 string player = Mapi.getOnLinePlayers();
+                if (string.IsNullOrEmpty(player)) player = "[]";
+                /*
+                // 没有玩家时输出空字符串，有玩家时输出JSON数组
                 if (string.IsNullOrEmpty(player) || player.Trim() == "[]")
                 {
                     HavePlayer = false;
                     //Console.WriteLine("DEBUG:当前服务器没有玩家");
+                }
+                */
+                if (Tools.Data.JSON.parse<List<dynamic>>(player).Count == 0)
+                {
+                    HavePlayer = false;
                 }
             }
 
@@ -306,7 +314,7 @@ namespace BackupMap
                                 catch (Exception error)
                                 {
                                     Console.WriteLine("[BackupMap Error] 执行压缩失败,将备份的文件夹复制到备份目录，错误：{0}", error);
-                                    CopyDirectorysAndFiles(Temp+ @"\" + MapDirName, savepath + @"\");
+                                    Folder.Copy(Temp+ @"\" + MapDirName, savepath + @"\");
                                 }
                                 Directory.Delete(Temp + @"\" + MapDirName,true);
                             }
@@ -339,41 +347,6 @@ namespace BackupMap
 
         }
 
-        /// <summary>
-        /// 文件夹复制
-        /// </summary>
-        /// <param name="srcdir">原文件夹</param>
-        /// <param name="dest">目的文件夹</param>
-        private static void CopyDirectorysAndFiles(string src, string dest)
-        {
-            DirectoryInfo srcdir = new DirectoryInfo(src);
-            string destPath = dest;
-            if (dest.LastIndexOf('\\') != (dest.Length - 1))
-            {
-                dest += "\\";
-            }
-            if (src.LastIndexOf('\\') != (src.Length - 1))
-            {
-                destPath = dest + srcdir.Name + "\\";
-                src += "\\";
-            }
-
-            
-            if (!Directory.Exists(destPath))
-            {
-                Directory.CreateDirectory(destPath);
-            }
-            FileInfo[] files = srcdir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                file.CopyTo(destPath + file.Name, true);
-            }
-            DirectoryInfo[] dirs = srcdir.GetDirectories();
-            foreach (DirectoryInfo dirInfo in dirs)
-            {
-               CopyDirectorysAndFiles(dirInfo.FullName, destPath);
-            }
-        }
     }
 
     public class Profile
