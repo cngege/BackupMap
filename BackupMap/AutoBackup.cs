@@ -36,98 +36,6 @@ namespace BackupMap
         private static InIFile ini;
 
 
-
-
-
-
-
-        /// <summary>
-        /// 拷贝文件夹
-        /// </summary>
-        /// <param name="srcdir">[复制此文件夹]</param>
-        /// <param name="desdir">[复制至此文件夹]如果以\结尾的才创建要复制的同名文件夹</param>
-        /// <param name="overwrite">是否覆盖</param>
-        public static void CopyDirectory(string srcdir, string desdir, bool overwrite)
-        {
-            string folderName = srcdir.Substring(srcdir.LastIndexOf("\\") + 1);
-
-            string desfolderdir = desdir;
-
-            if (desdir.LastIndexOf("\\") == (desdir.Length - 1))        //输出参数是不是以 \ 结尾的
-            {
-                desfolderdir = desdir + folderName;
-            }
-            string[] filenames = Directory.GetFileSystemEntries(srcdir);
-
-            foreach (string file in filenames)// 遍历所有的文件和目录
-            {
-                if (Directory.Exists(file))// 先当作目录处理如果存在这个目录就递归Copy该目录下面的文件
-                {
-                    string currentdir = desfolderdir + "\\" + file.Substring(file.LastIndexOf("\\") + 1);
-                    if (!Directory.Exists(currentdir))
-                    {
-                        Directory.CreateDirectory(currentdir);
-                    }
-
-                    CopyDirectory(file, currentdir, overwrite);
-                }
-                else if(File.Exists(file)) // 否则如果是文件直接copy文件
-                {
-                    string srcfileName = file.Substring(file.LastIndexOf("\\") + 1);
-
-                    srcfileName = desfolderdir + "\\" + srcfileName;
-
-                    if (!Directory.Exists(desfolderdir))
-                    {
-                        Directory.CreateDirectory(desfolderdir);
-                    }
-                    if (overwrite || !File.Exists(srcfileName))
-                    {
-                        File.Copy(file, srcfileName, true);
-                    }
-                    
-                }
-            }//foreach
-        }//function end
-
-        /// <summary>
-        /// 获取指定路径的大小
-        /// </summary>
-        /// <param name="dirPath">路径</param>
-        /// <returns></returns>
-        public static long GetDirectoryLength(string dirPath)
-        {
-            long len = 0;
-            //判断该路径是否存在（是否为文件夹）
-            if (!Directory.Exists(dirPath))
-            {
-                //查询文件的大小
-                len = new FileInfo(dirPath).Length;
-                
-            }
-            else
-            {
-                //定义一个DirectoryInfo对象
-                DirectoryInfo di = new DirectoryInfo(dirPath);
-
-                //通过GetFiles方法，获取di目录中的所有文件的大小
-                foreach (FileInfo fi in di.GetFiles())
-                {
-                    len += fi.Length;
-                }
-                //获取di中所有的文件夹，并存到一个新的对象数组中，以进行递归
-                DirectoryInfo[] dis = di.GetDirectories();
-                if (dis.Length > 0)
-                {
-                    for (int i = 0; i < dis.Length; i++)
-                    {
-                        len += GetDirectoryLength(dis[i].FullName);
-                    }
-                }
-            }
-            return len;
-        }
-
         /// <summary>
         /// 获取服务器存档文件夹的名字
         /// </summary>
@@ -161,8 +69,8 @@ namespace BackupMap
                 str_HardDisk = str_HardDisk.Substring(0, str_HardDisk.IndexOf(":"));
             }
             str_HardDisk = str_HardDisk + ":\\";
-            System.IO.DriveInfo[] drives = System.IO.DriveInfo.GetDrives();
-            foreach (System.IO.DriveInfo drive in drives)
+            DriveInfo[] drives = DriveInfo.GetDrives();
+            foreach (DriveInfo drive in drives)
             {
                 if (drive.Name == str_HardDisk)
                 {
@@ -188,7 +96,7 @@ namespace BackupMap
         public static bool StartBackup()
         {
             //检查磁盘剩余空间是否满足要求
-            if (Profile.EnabledThreshold && (GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < GetDirectoryLength(MapPath) * Profile.Threshold))
+            if (Profile.EnabledThreshold && (GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < Folder.GetDirectorySize(MapPath) * Profile.Threshold))
             {
                 Console.WriteLine("磁盘空间小于阙值，备份终止");
                 return false;
