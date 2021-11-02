@@ -329,7 +329,7 @@ namespace BackupMap
             api.addBeforeActListener("onServerCmd", e => 
             {
                 var ex = (ServerCmdEvent)BaseEvent.getFrom(e);
-                if (ex.cmd == "backupmap")
+                if (ex.cmd.ToLower() == "backupmap")
                 {
                     StartBackup();  //手动备份
                     return false;
