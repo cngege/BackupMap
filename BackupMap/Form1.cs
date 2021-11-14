@@ -1,13 +1,5 @@
-﻿using CSR;
-using System;
+﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools.Fileoperate;
 using Tools.Formoperate;
@@ -98,8 +90,19 @@ namespace BackupMap
             //ZipMap_Check.Text = ZipMap_Check.Checked ? "压缩" : "不压缩";
 
         }
-
-
+        private void getRuncmd_btn_Click(object sender, EventArgs e)
+        {
+            System.Threading.Thread s = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
+                OpenFileDialog file = new OpenFileDialog();
+                file.Title = "要打开的文件或程序"; //提示文字
+                if (file.ShowDialog() == DialogResult.OK)
+                {
+                    Runcmd_input.Text = file.FileName;
+                }
+            }));
+            s.ApartmentState = System.Threading.ApartmentState.STA;
+            s.Start();
+        }
 
         //面板右下角"完成"点击之后事件
         private void OKbtn_Click(object sender, EventArgs e)
@@ -174,6 +177,9 @@ namespace BackupMap
             //是否压缩文件
             Profile.Zip = ZipMap_Check.Checked;
 
+            //备份完成之后要运行的程序
+            Profile.run = Runcmd_input.Text;
+
             //最后写入ini
             //最后开启定时器
             AutoBackup.TimerTick.Enabled = true;
@@ -187,7 +193,9 @@ namespace BackupMap
             ini.Write("SaveMap", "Leapfrog", Isleapfrog_check.Checked ? "1" : "0");
             ini.Write("SaveMap", "NeedPlayer", Profile.NeedPlayerBakcup ? "1" : "0");
             ini.Write("SaveMap", "Zip", Profile.Zip ? "1" : "0");
+            ini.Write("Cmd", "Run", Profile.run ?? "0");
 
+            OKbtn.Text = "搞定";
         }
 
 

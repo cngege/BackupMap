@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.IO.Compression;
 using Tools.Fileoperate;
+using System.Diagnostics;
 
 namespace BackupMap
 {
@@ -196,6 +197,9 @@ namespace BackupMap
                     //备份时是否压缩存档到ZIP文件
                     Profile.Zip = ini.Read("SaveMap", "Zip", "0") != "0";
 
+                    //备份完成之后要打开的文件或脚本或程序(附带参数)
+                    Profile.run = ini.Read("Cmd", "Run", "0");
+
                     TimerTick.Enabled = true;
                     TimerTick.Start();
 
@@ -318,6 +322,20 @@ namespace BackupMap
                                 }
                                 Directory.Delete(Temp + @"\" + MapDirName,true);
                             }
+                            //备份之后执行的操作
+                            if (Profile.run!=null && Profile.run != "0" && File.Exists(Profile.run))
+                            {
+                                bool hasspace = (savepath + MapDirName).IndexOf(" ") != -1;
+
+                                if (Profile.Zip)
+                                {
+                                    Process.Start(Profile.run,String.Format("{0} {1}","zip", hasspace? "\"" + savepath + MapDirName + ".zip\"" : savepath + MapDirName + ".zip"));
+                                }
+                                else
+                                {
+                                    Process.Start(Profile.run, String.Format("{0} {1}", "dir", hasspace?"\""+ savepath + MapDirName+"\"" : savepath + MapDirName));
+                                }
+                            }
                             Thread.Sleep(1000 * 2);
                             SeedCMD(SaveResume);
                         }).Start();
@@ -365,6 +383,8 @@ namespace BackupMap
         public static int Threshold = 1;
         //是否备份后压缩存档到ZIP文件
         public static bool Zip = false;
+        //备份完成之后要运行的脚本或程序
+        public static string run;
 
     }
 

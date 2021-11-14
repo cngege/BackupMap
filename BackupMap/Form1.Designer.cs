@@ -58,6 +58,9 @@ namespace BackupMap
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SavePath_input = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.Runcmd_input = new System.Windows.Forms.TextBox();
+            this.getRuncmd_btn = new System.Windows.Forms.Button();
             this.TitlePanal.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Closebtn)).BeginInit();
@@ -117,11 +120,11 @@ namespace BackupMap
             // 
             this.Logo.BackColor = System.Drawing.Color.Transparent;
             this.Logo.BackgroundImage = global::BackupMap.Properties.Resources.Logobgimg;
-            this.Logo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.Logo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Logo.Controls.Add(this.pictureBox1);
             this.Logo.Location = new System.Drawing.Point(700, 0);
             this.Logo.Name = "Logo";
-            this.Logo.Size = new System.Drawing.Size(700, 400);
+            this.Logo.Size = new System.Drawing.Size(700, 369);
             this.Logo.TabIndex = 0;
             this.Logo.Paint += new System.Windows.Forms.PaintEventHandler(this.Logo_Paint);
             // 
@@ -132,7 +135,7 @@ namespace BackupMap
             this.pictureBox1.Image = global::BackupMap.Properties.Resources.BackupImage;
             this.pictureBox1.Location = new System.Drawing.Point(386, 70);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(242, 251);
+            this.pictureBox1.Size = new System.Drawing.Size(242, 220);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -148,9 +151,9 @@ namespace BackupMap
             this.OKbtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.OKbtn.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.OKbtn.ForeColor = System.Drawing.Color.White;
-            this.OKbtn.Location = new System.Drawing.Point(565, 351);
+            this.OKbtn.Location = new System.Drawing.Point(464, 324);
             this.OKbtn.Name = "OKbtn";
-            this.OKbtn.Size = new System.Drawing.Size(123, 37);
+            this.OKbtn.Size = new System.Drawing.Size(221, 37);
             this.OKbtn.TabIndex = 2;
             this.OKbtn.Text = "完  成";
             this.OKbtn.UseVisualStyleBackColor = false;
@@ -162,18 +165,21 @@ namespace BackupMap
             this.OpenSource_label.AutoSize = true;
             this.OpenSource_label.BackColor = System.Drawing.Color.Transparent;
             this.OpenSource_label.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.OpenSource_label.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.OpenSource_label.Location = new System.Drawing.Point(12, 371);
+            this.OpenSource_label.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.OpenSource_label.Location = new System.Drawing.Point(470, 46);
             this.OpenSource_label.Name = "OpenSource_label";
-            this.OpenSource_label.Size = new System.Drawing.Size(393, 17);
+            this.OpenSource_label.Size = new System.Drawing.Size(230, 63);
             this.OpenSource_label.TabIndex = 3;
-            this.OpenSource_label.Text = "本插件依赖\"Tools.dll\",请下载插件时同时下载附带的\"Tools.dll\"于同目录";
+            this.OpenSource_label.Text = "本插件依赖\"Tools.dll\"\r\n请下载插件时同时\r\n下载附带的\"Tools.dll\"于同目录";
             this.OpenSource_label.Click += new System.EventHandler(this.OpenSource_label_Click);
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.getRuncmd_btn);
+            this.panel1.Controls.Add(this.Runcmd_input);
+            this.panel1.Controls.Add(this.label10);
             this.panel1.Controls.Add(this.Threshold_input);
             this.panel1.Controls.Add(this.Threshold_Check);
             this.panel1.Controls.Add(this.Threshold_label);
@@ -422,13 +428,44 @@ namespace BackupMap
             this.SavePath_input.Size = new System.Drawing.Size(396, 22);
             this.SavePath_input.TabIndex = 0;
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label10.ForeColor = System.Drawing.Color.Black;
+            this.label10.Location = new System.Drawing.Point(5, 164);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(180, 17);
+            this.label10.TabIndex = 18;
+            this.label10.Text = "备份之后运行(留空则不运行)……";
+            // 
+            // Runcmd_input
+            // 
+            this.Runcmd_input.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Runcmd_input.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Runcmd_input.Location = new System.Drawing.Point(8, 184);
+            this.Runcmd_input.Name = "Runcmd_input";
+            this.Runcmd_input.Size = new System.Drawing.Size(396, 22);
+            this.Runcmd_input.TabIndex = 19;
+            // 
+            // getRuncmd_btn
+            // 
+            this.getRuncmd_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.getRuncmd_btn.Location = new System.Drawing.Point(407, 185);
+            this.getRuncmd_btn.Name = "getRuncmd_btn";
+            this.getRuncmd_btn.Size = new System.Drawing.Size(35, 23);
+            this.getRuncmd_btn.TabIndex = 20;
+            this.getRuncmd_btn.Text = "<<";
+            this.getRuncmd_btn.UseVisualStyleBackColor = true;
+            this.getRuncmd_btn.Click += new System.EventHandler(this.getRuncmd_btn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImage = global::BackupMap.Properties.Resources.formbgimg;
-            this.ClientSize = new System.Drawing.Size(700, 400);
+            this.ClientSize = new System.Drawing.Size(700, 369);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.OpenSource_label);
             this.Controls.Add(this.OKbtn);
@@ -483,5 +520,8 @@ namespace BackupMap
         private System.Windows.Forms.Label Threshold_label;
         private System.Windows.Forms.CheckBox Threshold_Check;
         private System.Windows.Forms.TextBox Threshold_input;
+        private System.Windows.Forms.Button getRuncmd_btn;
+        private System.Windows.Forms.TextBox Runcmd_input;
+        private System.Windows.Forms.Label label10;
     }
 }
