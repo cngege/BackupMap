@@ -22,7 +22,8 @@ namespace BackupMap
 
         public static string MapPath;                           //如:world\CNGEGE        最后不带\
         public static string MapDirName;                        //如:CNGEGE
-        public static string BakcupPath = @"..\BackUpMap";      //备份存档默认的保存路径和配置文件的存放路径;
+        public static string BakcupPath = @"plugins\BackUpMap"; //备份存档默认的保存路径和配置文件的存放路径;
+        public static string OldBakcupPath = @"..\BackUpMap";   //旧的备份和配置文件的路径
         public static string RunPath;
 
         public static MCCSAPI Mapi;
@@ -32,7 +33,7 @@ namespace BackupMap
         public static bool HavePlayer;                          //上一次备份到目前位置 是否有玩家进来过游戏
         public static bool PrepareBackup = false;               //已准备备份,等待调用出可备份文件列表
 
-        public static string Temp = @"..\tmp";                  //如果要压缩备份、存档的临时存储目录
+        public static string Temp = BakcupPath + @"\tmp";                      //如果要压缩备份、存档的临时存储目录
 
         private static InIFile ini;
 
@@ -99,7 +100,7 @@ namespace BackupMap
             //检查磁盘剩余空间是否满足要求
             if (Profile.EnabledThreshold && (GetHardDiskSpace(AppDomain.CurrentDomain.BaseDirectory) < Folder.GetDirectorySize(MapPath) * Profile.Threshold))
             {
-                Console.WriteLine("磁盘空间小于阙值，备份终止");
+                Console.WriteLine("[BackupMap] 磁盘空间小于阙值，备份终止");
                 return false;
             }
 
@@ -153,12 +154,32 @@ namespace BackupMap
             StartBackup();
         }
 
+        private static bool check_old_config()
+        {
+            //配置文件(夹)迁移
+            if (File.Exists(RunPath + OldBakcupPath + @"\BackupMap.ini"))
+            {
+                //将旧路径中的配置文件移动到新的文件夹下
+                if (!Directory.Exists(BakcupPath))
+                {
+                    Directory.CreateDirectory(BakcupPath);
+                }
+                File.Move(RunPath + OldBakcupPath + @"\BackupMap.ini", BakcupPath + @"\BackupMap.ini");
+                ConsoleColor color = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("[BackupMap] 检测到旧配置文件并自动迁移成功。");
+                Console.ForegroundColor = color;
+                return true;
+            }
+            return false;
+        }
+
         //检测配置配置文件
         public static void CheckDeploy()
         {
-            if (Directory.Exists(BakcupPath))
+            if (Directory.Exists(BakcupPath) || check_old_config())
             {
-                if (File.Exists(BakcupPath+@"\BackupMap.ini"))
+                if (File.Exists(BakcupPath+@"\BackupMap.ini") || check_old_config())
                 {
                     // TODO 读取配置文件并载入
                     // TODO 循环备份的时间 ms  小于一分钟就抛出异常
@@ -212,10 +233,9 @@ namespace BackupMap
             }
 
             //显示窗口
-            new Thread(()=> {
+            new Thread(() => {
                 System.Windows.Forms.Application.Run(new Form1());
             }).Start();
-              
         }
 
 
@@ -264,7 +284,7 @@ namespace BackupMap
             Mapi = api;
             TimerTick = new System.Timers.Timer();
             RunPath = FileSys.GetPath();
-            BakcupPath = RunPath + @"..\BackUpMap";
+            BakcupPath = RunPath + BakcupPath;              //备份后存档存放的文件夹的绝对路径
             Profile.HomeDire = BakcupPath;
             GetGameMap();
             CheckDeploy();                                  //检查配置文件是否存在,不存在则打开窗口进行配置
