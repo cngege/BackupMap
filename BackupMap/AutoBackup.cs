@@ -106,12 +106,12 @@ namespace BackupMap
 
             if (SeedCMD(SaveHold))
             {
+                PrepareBackup = true;
                 new Thread(() =>
                 {
                     Console.WriteLine("[{0} BackupMap ]5S后开始备份存档", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     SeedCMD(SaveHold);
                     Thread.Sleep(1000 * 5);
-                    PrepareBackup = true;
                     SeedCMD(SaveQuery);
 
                 }).Start();
@@ -159,15 +159,23 @@ namespace BackupMap
             //配置文件(夹)迁移
             if (File.Exists(RunPath + OldBakcupPath + @"\BackupMap.ini"))
             {
+                ConsoleColor color = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 //将旧路径中的配置文件移动到新的文件夹下
                 if (!Directory.Exists(BakcupPath))
                 {
                     Directory.CreateDirectory(BakcupPath);
                 }
-                File.Move(RunPath + OldBakcupPath + @"\BackupMap.ini", BakcupPath + @"\BackupMap.ini");
-                ConsoleColor color = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("[BackupMap] 检测到旧配置文件并自动迁移成功。");
+                if(!File.Exists(BakcupPath + @"\BackupMap.ini")) //如果目标文件不存在
+                {
+                    File.Move(RunPath + OldBakcupPath + @"\BackupMap.ini", BakcupPath + @"\BackupMap.ini");
+                    Console.WriteLine("[BackupMap] 检测到旧配置文件并自动迁移成功。");
+                }
+                else
+                {
+                    File.Delete(RunPath + OldBakcupPath + @"\BackupMap.ini");
+                    Console.WriteLine("[BackupMap] 新配置文件已存在，删除旧配置文件。");
+                }
                 Console.ForegroundColor = color;
                 return true;
             }
@@ -304,44 +312,48 @@ namespace BackupMap
             {
                 var ex = (ServerCmdOutputEvent)BaseEvent.getFrom(e);
                 string output = ex.output;
-
+                String t_tmp = DateTime.Now.Ticks.ToString();
                 //
                 if (PrepareBackup)
                 {
                     if (output.IndexOf("Data saved. Files are now ready to be copied") != -1 || output.IndexOf("数据已保存。文件现已可供复制") != -1)
                     {
                         Console.WriteLine("已获取备份文件列表，准备备份");
-                        PrepareBackup = false;
-                        //告诉系统 存档存储已恢复
                         new Thread(() =>
                         {
                             string savepath = string.Format("{0}\\{1}\\", Profile.HomeDire, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                             //备份
-                            int count = BackupDB(output.Split(new char[] { '\n' })[1], Profile.Zip? Temp+@"\" : savepath);
-                            if (count != 0)
-                            {
-                                if (count == -1) { Console.WriteLine("因备份失败而终止");return; }
-                                Console.WriteLine("备份结束有{0}个文件备份失败", count);
-                                
-                            }
-                            else
-                            {
-                                Console.WriteLine("存档全部复制成功");
-                            }
+                            int count = BackupDB(output.Split(new char[] { '\n' })[1], Profile.Zip? Temp+@"\"+ t_tmp + @"\" : savepath);
                             if (Profile.Zip)
                             {
                                 try
                                 {
                                     Directory.CreateDirectory(savepath);
-                                    ZipFile.CreateFromDirectory(Temp + @"\" + MapDirName, savepath + MapDirName + ".zip");
+                                    ZipFile.CreateFromDirectory(Temp + @"\" + t_tmp + @"\" + MapDirName, savepath + MapDirName + ".zip");
                                 }
                                 catch (Exception error)
                                 {
                                     Console.WriteLine("[BackupMap Error] 执行压缩失败,将备份的文件夹复制到备份目录，错误：{0}", error);
-                                    Folder.Copy(Temp+ @"\" + MapDirName, savepath + @"\");
+                                    Folder.Copy(Temp + @"\" + t_tmp + @"\" + MapDirName, savepath + @"\");
                                 }
-                                Directory.Delete(Temp + @"\" + MapDirName,true);
+                                Directory.Delete(Temp + @"\" + t_tmp, true);
                             }
+                            if (count != 0)
+                            {
+                                if (count == -1) {
+                                    Console.WriteLine("因备份失败而终止");
+                                    PrepareBackup = false;
+                                    SeedCMD(SaveResume);
+                                    return;
+                                }
+                                Console.WriteLine("备份结束有{0}个文件备份失败", count);
+                            }
+                            else
+                            {
+                                Console.WriteLine("存档全部复制成功");
+                            }
+
+
                             //备份之后执行的操作
                             if (Profile.run!=null && Profile.run != "0" && File.Exists(Profile.run))
                             {
@@ -356,8 +368,10 @@ namespace BackupMap
                                     Process.Start(Profile.run, String.Format("{0} {1}", "dir", hasspace?"\""+ savepath + MapDirName+"\"" : savepath + MapDirName));
                                 }
                             }
-                            Thread.Sleep(1000 * 2);
+                            //Thread.Sleep(1000 * 2);
                             SeedCMD(SaveResume);
+                            PrepareBackup = false;
+                            //告诉插件 存档存储已恢复 可以再次备份
                         }).Start();
 
                         return false;                                       //禁止在控制面板上显示这个回显
@@ -377,7 +391,14 @@ namespace BackupMap
                 var ex = (ServerCmdEvent)BaseEvent.getFrom(e);
                 if (ex.cmd.ToLower() == "backupmap")
                 {
-                    StartBackup();  //手动备份
+                    if(PrepareBackup)
+                    {
+                        Console.WriteLine("上次备份尚未结束");
+                    }
+                    else
+                    {
+                        StartBackup();  //手动备份
+                    }
                     return false;
                 }
                 return true;
